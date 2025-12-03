@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Graphics Tool - MapboxGL + Timeline Animation Demo</title>
+    <script src='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css' rel='stylesheet' />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+            background: #000;
+            transform-origin: top left;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .toolbar h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #4a9eff;
+            font-weight: 600;
+        }
+
+        .tool-group {
+            margin-bottom: 15px;
+        }
+
+        .tool-btn {
+            background: #2a2a2a;
+            border: 2px solid #3a3a3a;
+            color: #fff;
+            padding: 10px 15px;
+            margin: 5px 5px 5px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .tool-btn:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .tool-btn.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .timeline-container {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a9eff;
+        }
+
+        .timeline-info {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .control-btn {
+            background: #2a2a2a;
+            border: 2px solid #3a3a3a;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .control-btn.playing {
+            background: #ff4a4a;
+            border-color: #ff4a4a;
+        }
+
+        .timeline-slider {
+            width: 100%;
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .timeline-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4a9eff 0%, #4affff 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .timeline-thumb {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #4a9eff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(74, 158, 255, 0.5);
+            cursor: grab;
+        }
+
+        .timeline-thumb:active {
+            cursor: grabbing;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .layer-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        .layer-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .layer-item label {
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .export-panel {
+            position: absolute;
+            bottom: 200px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .export-btn {
+            background: #4a9eff;
+            border: none;
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            background: #6ab4ff;
+        }
+
+        .drawn-object {
+            position: absolute;
+            cursor: move;
+            transition: all 0.3s ease-out;
+        }
+
+        .pressure-symbol {
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            user-select: none;
+        }
+
+        .pressure-low {
+            color: #ff4a4a;
+        }
+
+        .pressure-high {
+            color: #4a9eff;
+        }
+
+        .front-line {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .info-badge {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(74, 158, 255, 0.2);
+            border: 2px solid #4a9eff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 999;
+        }
+
+        @media (max-width: 1920px) {
+            #container {
+                transform: scale(calc(100vw / 1920));
+                width: 1920px;
+                height: 1080px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="info-badge">
+        🌦️ Weather Graphics Builder - MapboxGL + Timeline Animation + Drawing Tools
+    </div>
+
+    <div id="container">
+        <div id="map"></div>
+
+        <div class="toolbar">
+            <h3>🎨 Drawing Tools</h3>
+            <div class="tool-group">
+                <button class="tool-btn" data-tool="low">L Low Pressure</button>
+                <button class="tool-btn" data-tool="high">H High Pressure</button>
+                <button class="tool-btn" data-tool="cold-front">❄️ Cold Front</button>
+                <button class="tool-btn" data-tool="warm-front">🌡️ Warm Front</button>
+                <button class="tool-btn" data-tool="marker">📍 Marker</button>
+                <button class="tool-btn" data-tool="clear">🗑️ Clear All</button>
+            </div>
+            <div style="font-size: 11px; color: #888; margin-top: 10px;">
+                Click map to place object<br>
+                Objects animate with timeline
+            </div>
+        </div>
+
+        <div class="layer-toggle">
+            <h3>📊 Weather Layers</h3>
+            <div class="layer-item">
+                <input type="checkbox" id="layer-radar" checked>
+                <label for="layer-radar">Radar (Simulated)</label>
+            </div>
+            <div class="layer-item">
+                <input type="checkbox" id="layer-temp">
+                <label for="layer-temp">Temperature</label>
+            </div>
+            <div class="layer-item">
+                <input type="checkbox" id="layer-wind">
+                <label for="layer-wind">Wind Speed</label>
+            </div>
+        </div>
+
+        <div class="export-panel">
+            <h3>💾 Export</h3>
+            <button class="export-btn" id="export-png">📸 Export PNG (1920×1080)</button>
+            <button class="export-btn" id="export-sequence">🎬 Export Sequence (6 frames)</button>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <div class="timeline-title">⏱️ Forecast Timeline</div>
+                <div class="timeline-info" id="time-display">Now</div>
+            </div>
+
+            <div class="timeline-controls">
+                <button class="control-btn" id="play-btn">▶️ Play</button>
+                <button class="control-btn" id="prev-btn">⏮️ Previous</button>
+                <button class="control-btn" id="next-btn">⏭️ Next</button>
+                <button class="control-btn" id="reset-btn">↺ Reset</button>
+            </div>
+
+            <div class="timeline-slider" id="timeline-slider">
+                <div class="timeline-progress" id="timeline-progress"></div>
+                <div class="timeline-thumb" id="timeline-thumb"></div>
+            </div>
+
+            <div class="timeline-labels">
+                <span>Now</span>
+                <span>+2hr</span>
+                <span>+4hr</span>
+                <span>+6hr</span>
+                <span>+8hr</span>
+                <span>+10hr</span>
+                <span>+12hr</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+            center: [-95.7129, 37.0902],
+            zoom: 4,
+            pitch: 0
+        });
+
+        let currentTool = null;
+        let currentTimeIndex = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        const timeSteps = 7;
+        const drawnObjects = [];
+
+        const timeLabels = ['Now', '+2hr', '+4hr', '+6hr', '+8hr', '+10hr', '+12hr'];
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tool = e.target.dataset.tool;
+
+                if (tool === 'clear') {
+                    clearAllObjects();
+                    return;
+                }
+
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTool = tool;
+            });
+        });
+
+        map.on('click', (e) => {
+            if (!currentTool || currentTool === 'clear') return;
+
+            const { lng, lat } = e.lngLat;
+            const point = map.project([lng, lat]);
+
+            const obj = {
+                id: Date.now(),
+                type: currentTool,
+                startPos: { x: point.x, y: point.y, lng, lat },
+                endPos: null,
+                element: null
+            };
+
+            if (currentTool === 'low') {
+                obj.element = createPressureSymbol('L', point.x, point.y, 'pressure-low');
+                obj.endPos = { x: point.x + 200, y: point.y - 100 };
+            } else if (currentTool === 'high') {
+                obj.element = createPressureSymbol('H', point.x, point.y, 'pressure-high');
+                obj.endPos = { x: point.x - 150, y: point.y + 80 };
+            } else if (currentTool === 'cold-front') {
+                obj.element = createFrontLine(point.x, point.y, 'cold');
+                obj.endPos = { x: point.x + 250, y: point.y + 150 };
+            } else if (currentTool === 'warm-front') {
+                obj.element = createFrontLine(point.x, point.y, 'warm');
+                obj.endPos = { x: point.x - 200, y: point.y - 120 };
+            } else if (currentTool === 'marker') {
+                obj.element = createMarker(point.x, point.y);
+                obj.endPos = { x: point.x + 100, y: point.y - 50 };
+            }
+
+            drawnObjects.push(obj);
+            updateObjectPositions();
+        });
+
+        function createPressureSymbol(symbol, x, y, className) {
+            const el = document.createElement('div');
+            el.className = `drawn-object pressure-symbol ${className}`;
+            el.textContent = symbol;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.getElementById('container').appendChild(el);
+            return el;
+        }
+
+        function createFrontLine(x, y, type) {
+            const el = document.createElement('div');
+            el.className = 'drawn-object';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.width = '200px';
+            el.style.height = '4px';
+            el.style.background = type === 'cold' ? '#4a9eff' : '#ff4a4a';
+            el.style.borderRadius = '2px';
+            document.getElementById('container').appendChild(el);
+            return el;
+        }
+
+        function createMarker(x, y) {
+            const el = document.createElement('div');
+            el.className = 'drawn-object';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.fontSize = '32px';
+            el.textContent = '📍';
+            document.getElementById('container').appendChild(el);
+            return el;
+        }
+
+        function updateObjectPositions() {
+            const progress = currentTimeIndex / (timeSteps - 1);
+
+            drawnObjects.forEach(obj => {
+                if (!obj.element || !obj.endPos) return;
+
+                const x = obj.startPos.x + (obj.endPos.x - obj.startPos.x) * progress;
+                const y = obj.startPos.y + (obj.endPos.y - obj.startPos.y) * progress;
+
+                obj.element.style.left = x + 'px';
+                obj.element.style.top = y + 'px';
+            });
+        }
+
+        function clearAllObjects() {
+            drawnObjects.forEach(obj => {
+                if (obj.element) obj.element.remove();
+            });
+            drawnObjects.length = 0;
+        }
+
+        function updateTimeline() {
+            const progress = (currentTimeIndex / (timeSteps - 1)) * 100;
+            document.getElementById('timeline-progress').style.width = progress + '%';
+            document.getElementById('timeline-thumb').style.left = progress + '%';
+            document.getElementById('time-display').textContent = timeLabels[currentTimeIndex];
+            updateObjectPositions();
+        }
+
+        document.getElementById('play-btn').addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('play-btn');
+
+            if (isPlaying) {
+                btn.textContent = '⏸️ Pause';
+                btn.classList.add('playing');
+                playInterval = setInterval(() => {
+                    currentTimeIndex++;
+                    if (currentTimeIndex >= timeSteps) {
+                        currentTimeIndex = 0;
+                    }
+                    updateTimeline();
+                }, 1000);
+            } else {
+                btn.textContent = '▶️ Play';
+                btn.classList.remove('playing');
+                clearInterval(playInterval);
+            }
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentTimeIndex > 0) {
+                currentTimeIndex--;
+                updateTimeline();
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentTimeIndex < timeSteps - 1) {
+                currentTimeIndex++;
+                updateTimeline();
+            }
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            currentTimeIndex = 0;
+            updateTimeline();
+            if (isPlaying) {
+                document.getElementById('play-btn').click();
+            }
+        });
+
+        const slider = document.getElementById('timeline-slider');
+        const thumb = document.getElementById('timeline-thumb');
+        let isDragging = false;
+
+        thumb.addEventListener('mousedown', () => {
+            isDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const rect = slider.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+
+            const progress = x / rect.width;
+            currentTimeIndex = Math.round(progress * (timeSteps - 1));
+            updateTimeline();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        slider.addEventListener('click', (e) => {
+            if (e.target === thumb) return;
+
+            const rect = slider.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const progress = x / rect.width;
+            currentTimeIndex = Math.round(progress * (timeSteps - 1));
+            updateTimeline();
+        });
+
+        document.getElementById('export-png').addEventListener('click', async () => {
+            const canvas = await html2canvas(document.getElementById('container'), {
+                width: 1920,
+                height: 1080,
+                backgroundColor: '#000000'
+            });
+
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `weather-graphics-frame-${currentTimeIndex}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+
+        document.getElementById('export-sequence').addEventListener('click', async () => {
+            alert('Sequence export would generate ' + timeSteps + ' PNG files (one per time step).\n\nIn production, this would loop through all timeline positions and export each frame.');
+        });
+
+        updateTimeline();
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Graphics Tool - Development Proposal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .demo-link {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .demo-link:hover {
+            background: #2980b9;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        h3 {
+            color: #34495e;
+            font-size: 18px;
+            margin: 25px 0 15px 0;
+        }
+
+        .value-prop {
+            background: #e8f4f8;
+            padding: 25px;
+            border-left: 4px solid #3498db;
+            margin: 25px 0;
+            font-size: 16px;
+        }
+
+        .value-prop strong {
+            color: #2c3e50;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .quote {
+            background: #fef9e7;
+            padding: 20px;
+            border-left: 4px solid #f39c12;
+            margin: 20px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .comparison-item {
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .original-scope {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .simplified-scope {
+            background: #efe;
+            border-left: 4px solid #27ae60;
+        }
+
+        .comparison-item h4 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .comparison-item ul {
+            margin-left: 20px;
+        }
+
+        .comparison-item li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .milestone {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .milestone-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .milestone-price {
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .milestone-duration {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .milestone ul {
+            margin-left: 20px;
+        }
+
+        .milestone li {
+            margin: 5px 0;
+        }
+
+        .deliverable {
+            background: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .questions {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .question-item {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 3px;
+        }
+
+        .question-label {
+            font-weight: 600;
+            color: #e67e22;
+            margin-bottom: 8px;
+        }
+
+        .critical {
+            color: #c0392b;
+            font-weight: 700;
+        }
+
+        .timeline-visual {
+            background: linear-gradient(to right, #3498db, #27ae60);
+            height: 8px;
+            border-radius: 4px;
+            margin: 30px 0 10px 0;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .total-row {
+            background: #2c3e50 !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .total-row td {
+            border: none;
+        }
+
+        .next-steps {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+
+        .next-steps ol {
+            margin-left: 25px;
+        }
+
+        .next-steps li {
+            margin: 10px 0;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Weather Graphics Tool</h1>
+            <div class="subtitle">MVP Development Proposal</div>
+            <div class="subtitle">Bo Cole | The Weather Agency</div>
+            <a href="https://leonidsvb.github.io/upwork-demos/demo/weather-graphics-project/weather-graphics-demo.html" class="demo-link" target="_blank">
+                → View Working Prototype
+            </a>
+        </div>
+
+        <!-- EXECUTIVE SUMMARY -->
+        <div class="value-prop">
+            <strong>The Business Opportunity</strong>
+            Current weather graphics solutions cost $15k+ hardware + $1,500-2,000/month. MetGraphics offers Photoshop templates for $10-125/year, but requires manual editing.
+            <br><br>
+            <strong>Your competitive advantage:</strong> First browser-based, real-time weather graphics tool that broadcasts can use in OBS — no expensive hardware, no Photoshop skills needed. Target: independent forecasters, streamers, educators, small media outlets.
+            <br><br>
+            <strong>Time to market: 4-5 weeks to production-ready MVP.</strong>
+        </div>
+
+        <!-- CLIENT VISION -->
+        <h2>Your Vision (From Our Call)</h2>
+
+        <div class="quote">
+            "I'm trying to make more of an affordable solution for people to subscribe and get graphics for their needs and they don't have to spend a fortune."
+        </div>
+
+        <div class="quote">
+            "The goal would be just for people to be able to create their own show, whether it's exporting static files or exporting an MP4... and then that way they can save shows in some sort of a library."
+        </div>
+
+        <div class="quote">
+            "We have to consider that the people using this thing, they're going to probably be not that, not necessarily the most tech savvy people. And they need to be able to easily create their own show and export it."
+        </div>
+
+        <h3>Key Success Criteria</h3>
+        <ul>
+            <li>Works perfectly as OBS Browser Source (1920×1080, no scrollbars)</li>
+            <li>Loads ALL Xweather data layers (radar, future radar, snow, temps, etc.)</li>
+            <li>Draw weather features: H/L symbols, fronts, polygons, annotations</li>
+            <li>Animate features in sync with forecast timeline</li>
+            <li>Save/load scenes (Monday's show, Tuesday's show)</li>
+            <li>Export for broadcast and social media</li>
+            <li>Simple login + subscription-based access</li>
+            <li>Launch within 1-2 months</li>
+        </ul>
+
+        <!-- MARKET CONTEXT -->
+        <h2>Market Context: MetGraphics Analysis</h2>
+
+        <p><strong>MetGraphics.net</strong> (your reference during our call) offers:</p>
+        <ul>
+            <li><strong>Premium subscription:</strong> $125/year</li>
+            <li><strong>Individual templates:</strong> $9.99-49.99 (Photoshop files)</li>
+            <li><strong>Target audience:</strong> Independent forecasters, small media, educators</li>
+            <li><strong>Limitation:</strong> User must download PSD files, edit in Photoshop manually</li>
+        </ul>
+
+        <div class="value-prop">
+            <strong>Why Your Tool Wins:</strong>
+            <br>✓ Browser-based (no Photoshop needed)
+            <br>✓ Real-time data integration (no manual updates)
+            <br>✓ Animation capabilities (MetGraphics = static only)
+            <br>✓ OBS-ready (livestreaming integration)
+            <br>✓ Comparable pricing ($15-30/month vs $1,500/month competitors)
+        </div>
+
+        <!-- SCOPE COMPARISON -->
+        <h2>Original Scope vs. Simplified MVP Approach</h2>
+
+        <p><strong>Strategic Simplification:</strong> Your job posting outlined an ambitious full-featured platform. Based on our call and market analysis, I recommend focusing MVP on the <strong>core differentiator</strong> (interactive map tool with Xweather integration) and deferring non-essential features to Phase 2.</p>
+
+        <div class="comparison">
+            <div class="comparison-item original-scope">
+                <h4>📋 Original Job Posting Scope</h4>
+                <ul>
+                    <li>ALL Xweather layers + animations</li>
+                    <li>Full drawing suite (8+ tools)</li>
+                    <li>Advanced animation engine</li>
+                    <li>Multiple export formats (PNG/sequence/MP4)</li>
+                    <li>Static template library (quantity unclear)</li>
+                    <li>Full user accounts + paywall</li>
+                    <li>Landing page + marketing site</li>
+                    <li>OBS integration</li>
+                </ul>
+                <div style="margin-top: 15px; color: #c0392b; font-weight: 600;">
+                    Estimated: 6-8 weeks | High complexity
+                </div>
+            </div>
+
+            <div class="comparison-item simplified-scope">
+                <h4>🚀 Simplified MVP (Faster Launch)</h4>
+                <ul>
+                    <li>ALL Xweather layers + animations ✓</li>
+                    <li><strong>Essential drawing tools</strong> (H/L, fronts, text, polygons)</li>
+                    <li><strong>Simple linear animation</strong> (works, not fancy)</li>
+                    <li><strong>PNG export only</strong> (users can record in OBS for video)</li>
+                    <li><strong>2-3 auto-populated templates</strong> (vs full library)</li>
+                    <li><strong>Basic auth</strong> (email/password, manual flag)</li>
+                    <li><strong>Minimal landing page</strong> (1-page, clean)</li>
+                    <li>OBS integration ✓</li>
+                </ul>
+                <div style="margin-top: 15px; color: #27ae60; font-weight: 600;">
+                    Target: 4-5 weeks | Production-ready
+                </div>
+            </div>
+        </div>
+
+        <h3>Why Simplification = Better Business Outcome</h3>
+
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>Original Approach</th>
+                <th>MVP Approach</th>
+                <th>Business Impact</th>
+            </tr>
+            <tr>
+                <td><strong>Static Templates</strong></td>
+                <td>Large library (unclear scope, could be 20+ templates)</td>
+                <td>2-3 basic auto-populated templates</td>
+                <td>Saves 1-2 weeks. Users primarily need map tool (your differentiator). Add templates based on actual user demand.</td>
+            </tr>
+            <tr>
+                <td><strong>Export Formats</strong></td>
+                <td>PNG + frame sequence + MP4</td>
+                <td>PNG only (users record in OBS)</td>
+                <td>Saves 3-4 days. Users already use OBS for broadcasting — they can record there. MP4 export = Phase 2.</td>
+            </tr>
+            <tr>
+                <td><strong>Animation System</strong></td>
+                <td>Advanced timeline editor, custom easing curves</td>
+                <td>Simple linear interpolation, basic play/pause/scrub</td>
+                <td>Saves 2-3 days. Linear animation works for 90% of use cases. Advanced features = Phase 2.</td>
+            </tr>
+            <tr>
+                <td><strong>Authentication</strong></td>
+                <td>Full Stripe integration, email verification, password reset</td>
+                <td>Email/password + manual subscription flag</td>
+                <td>Saves 2-3 days. You can manually activate early users, add Stripe once product validated.</td>
+            </tr>
+            <tr>
+                <td><strong>Drawing Tools</strong></td>
+                <td>10+ tools, curved fronts, layer ordering, advanced editing</td>
+                <td>Essential 5 tools, simple fronts (curved = Phase 2)</td>
+                <td>Saves 2 days. Users need basics working. Add polish based on feedback.</td>
+            </tr>
+        </table>
+
+        <div class="value-prop">
+            <strong>Bottom Line:</strong> Simplified MVP gets you to market <strong>2-3 weeks faster</strong> with the core value prop intact. You can validate with real users, get feedback, and build Phase 2 features based on actual demand — not assumptions.
+        </div>
+
+        <!-- MILESTONES -->
+        <h2>Milestone Breakdown: $3,000 over 4-5 Weeks</h2>
+
+        <div class="milestone">
+            <div class="milestone-header">
+                <div class="milestone-title">Milestone 1: Map Engine + Xweather Integration</div>
+                <div class="milestone-price">$600</div>
+            </div>
+            <div class="milestone-duration">Week 1 (6-7 days)</div>
+            <ul>
+                <li>MapLibre GL rendering engine (1920×1080 fixed layout)</li>
+                <li>ALL Xweather layer integration (radar, future radar, satellite, temps, snow, wind, alerts)</li>
+                <li>Layer toggle UI (turn layers on/off)</li>
+                <li>Time-series support for futurecast layers</li>
+                <li>OBS Browser Source compatibility verified (no scrollbars, interact mode works)</li>
+                <li>Performance testing (smooth tile loading, no lag)</li>
+            </ul>
+            <div class="deliverable">✓ You can load any Xweather layer in OBS and toggle between them</div>
+        </div>
+
+        <div class="milestone">
+            <div class="milestone-header">
+                <div class="milestone-title">Milestone 2: Essential Drawing Tools</div>
+                <div class="milestone-price">$600</div>
+            </div>
+            <div class="milestone-duration">Week 1-2 (5-6 days)</div>
+            <ul>
+                <li>High (H) and Low (L) pressure symbols</li>
+                <li>Front tools (cold, warm, stationary — simple/straight for MVP)</li>
+                <li>Text annotations</li>
+                <li>Polygon tool (impact zones, warning areas)</li>
+                <li>Drag & drop object positioning</li>
+                <li>Edit mode (move, delete objects)</li>
+                <li>Drawing toolbar UI</li>
+            </ul>
+            <div class="deliverable">✓ You can draw a Low over South Dakota, add a cold front, and annotate a map</div>
+        </div>
+
+        <div class="milestone">
+            <div class="milestone-header">
+                <div class="milestone-title">Milestone 3: Animation Engine + Timeline</div>
+                <div class="milestone-price">$800</div>
+            </div>
+            <div class="milestone-duration">Week 2-3 (6-7 days)</div>
+            <ul>
+                <li>Timeline UI (play, pause, scrub controls)</li>
+                <li>Sync timeline to Xweather futurecast timestamps</li>
+                <li>Object animation system (start position → end position)</li>
+                <li>Simple linear interpolation (smooth movement)</li>
+                <li>Animate H/L symbols, fronts, polygons, text in sync with weather layers</li>
+                <li>Frame-by-frame scrubbing</li>
+                <li>Performance optimization (no stuttering during playback)</li>
+            </ul>
+            <div class="deliverable">✓ You can animate a Low moving from SD to WI while future snow layer plays</div>
+        </div>
+
+        <div class="milestone">
+            <div class="milestone-header">
+                <div class="milestone-title">Milestone 4: Export + Scene Management</div>
+                <div class="milestone-price">$500</div>
+            </div>
+            <div class="milestone-duration">Week 3-4 (4-5 days)</div>
+            <ul>
+                <li>PNG export (current frame at 1920×1080, broadcast quality)</li>
+                <li>Save scene to JSON (full state: layers, objects, animation keyframes)</li>
+                <li>Load scene (restore everything exactly)</li>
+                <li>Scene library UI (list saved scenes, duplicate, delete)</li>
+                <li>Auto-save (draft recovery)</li>
+            </ul>
+            <div class="deliverable">✓ You can save Monday's show, load Tuesday's show, and export PNGs for social media</div>
+        </div>
+
+        <div class="milestone">
+            <div class="milestone-header">
+                <div class="milestone-title">Milestone 5: Auth, Landing Page, Polish & Launch</div>
+                <div class="milestone-price">$500</div>
+            </div>
+            <div class="milestone-duration">Week 4-5 (5-7 days)</div>
+            <ul>
+                <li>Basic authentication (email/password signup/login)</li>
+                <li>User-specific scene storage</li>
+                <li>Simple subscription flag (you manually activate users initially)</li>
+                <li>Minimal landing page (1-page: description, demo video embed, pricing, signup CTA)</li>
+                <li>Comprehensive testing (all layers, tools, animations, OBS compatibility)</li>
+                <li>Bug fixes</li>
+                <li>Production deployment</li>
+                <li>Quick video tutorial (how to use)</li>
+            </ul>
+            <div class="deliverable">✓ Live production tool at your domain, users can sign up and start creating graphics</div>
+        </div>
+
+        <table style="margin-top: 30px;">
+            <tr>
+                <th>Milestone</th>
+                <th>Duration</th>
+                <th>Payment</th>
+                <th>Cumulative</th>
+            </tr>
+            <tr>
+                <td>M1: Map Engine + Xweather</td>
+                <td>6-7 days</td>
+                <td>$600</td>
+                <td>$600</td>
+            </tr>
+            <tr>
+                <td>M2: Drawing Tools</td>
+                <td>5-6 days</td>
+                <td>$600</td>
+                <td>$1,200</td>
+            </tr>
+            <tr>
+                <td>M3: Animation + Timeline</td>
+                <td>6-7 days</td>
+                <td>$800</td>
+                <td>$2,000</td>
+            </tr>
+            <tr>
+                <td>M4: Export + Scenes</td>
+                <td>4-5 days</td>
+                <td>$500</td>
+                <td>$2,500</td>
+            </tr>
+            <tr>
+                <td>M5: Auth + Launch</td>
+                <td>5-7 days</td>
+                <td>$500</td>
+                <td>$3,000</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL</td>
+                <td>4-5 weeks</td>
+                <td>$3,000</td>
+                <td>$3,000</td>
+            </tr>
+        </table>
+
+        <!-- TIMELINE VISUAL -->
+        <h2>Timeline Overview</h2>
+        <div class="timeline-visual"></div>
+        <div class="timeline-labels">
+            <span>Week 1</span>
+            <span>Week 2</span>
+            <span>Week 3</span>
+            <span>Week 4</span>
+            <span>Week 5</span>
+            <span>🚀 LAUNCH</span>
+        </div>
+
+        <ul style="margin-top: 20px;">
+            <li><strong>Week 1:</strong> Map engine + Xweather layers + basic drawing tools working</li>
+            <li><strong>Week 2-3:</strong> Animation system complete, can create full weather scenarios</li>
+            <li><strong>Week 4:</strong> Export + scene management working</li>
+            <li><strong>Week 5:</strong> Auth, landing page, final polish, production launch</li>
+        </ul>
+
+        <div class="value-prop" style="margin-top: 25px;">
+            <strong>Communication Plan:</strong> Weekly progress updates + video demos after each milestone. Revisions handled within 1-2 days of your feedback. We'll use Google Meet for weekly sync calls (I'm available mornings your time).
+        </div>
+
+        <!-- TECH STACK -->
+        <h2>Technical Approach</h2>
+
+        <h3>Core Stack</h3>
+        <ul>
+            <li><strong>Frontend:</strong> React + TypeScript (modular, maintainable, scalable)</li>
+            <li><strong>Map Engine:</strong> MapLibre GL (Mapbox-compatible, open source, no licensing fees)</li>
+            <li><strong>Weather Data:</strong> Xweather API (your provided credentials)</li>
+            <li><strong>Animation:</strong> Canvas + requestAnimationFrame (smooth 60fps playback)</li>
+            <li><strong>Auth:</strong> Firebase Auth or Supabase (fast, secure, minimal setup)</li>
+            <li><strong>Hosting:</strong> Vercel or Netlify (instant deploys, CDN, SSL)</li>
+        </ul>
+
+        <h3>Why This Stack</h3>
+        <ul>
+            <li><strong>Fast development:</strong> React ecosystem = thousands of libraries, proven patterns</li>
+            <li><strong>OBS compatible:</strong> Modern browser APIs work perfectly in OBS Browser Source</li>
+            <li><strong>Scalable:</strong> Can handle hundreds of concurrent users without custom server infrastructure</li>
+            <li><strong>Maintainable:</strong> Clean code, modular architecture, easy for you to extend later</li>
+        </ul>
+
+        <h3>Architecture Note</h3>
+        <p>I already built a working prototype (link at top) demonstrating:</p>
+        <ul>
+            <li>MapLibre rendering at 1920×1080</li>
+            <li>7-step timeline with animation</li>
+            <li>Drawing tools (H/L symbols, fronts, polygons)</li>
+            <li>Object interpolation</li>
+            <li>PNG export</li>
+        </ul>
+        <p>This de-risks the project significantly — the core technical challenges are already solved. We're extending a proven foundation, not building blind.</p>
+
+        <!-- QUESTIONS -->
+        <h2>Critical Questions Before Starting</h2>
+
+        <div class="questions">
+            <div class="question-item">
+                <div class="question-label"><span class="critical">Q1 [CRITICAL]:</span> Xweather API Access</div>
+                <strong>When can you provide Xweather API credentials?</strong>
+                <br>I need immediate access after hiring to start Milestone 1. Also:
+                <ul>
+                    <li>What tier/plan do you have? (Some advanced layers may require premium access)</li>
+                    <li>Are there rate limits I should be aware of?</li>
+                    <li>Can you share Xweather documentation links?</li>
+                </ul>
+            </div>
+
+            <div class="question-item">
+                <div class="question-label"><span class="critical">Q2 [CRITICAL]:</span> Static Templates Scope</div>
+                <strong>For MVP, should I focus on the interactive map tool (your main differentiator), and include just 2-3 basic auto-populated templates?</strong>
+                <br><br>
+                Context: You showed me MetGraphics (dozens of templates). Building a full template library could add 2-3 weeks. My recommendation:
+                <ul>
+                    <li><strong>MVP:</strong> 2-3 basic templates (7-day forecast, current conditions) — auto-populated, minimal customization</li>
+                    <li><strong>Phase 2:</strong> Expanded template library based on user feedback</li>
+                </ul>
+                This gets the core tool (map engine) to market faster. Agree?
+            </div>
+
+            <div class="question-item">
+                <div class="question-label">Q3: Export Format Priority</div>
+                <strong>Is PNG export (single frame) sufficient for MVP?</strong>
+                <br><br>
+                Options:
+                <ul>
+                    <li><strong>MVP:</strong> PNG export only (users can record animations in OBS)</li>
+                    <li><strong>Phase 2:</strong> Frame sequence export + MP4 generation</li>
+                </ul>
+                MP4 export in-browser adds significant complexity. Since your users already use OBS for broadcasting, they can record there. Thoughts?
+            </div>
+
+            <div class="question-item">
+                <div class="question-label">Q4: AI-Generated Prototype</div>
+                <strong>Have you uploaded the ChatGPT prototype code to the job post?</strong>
+                <br><br>
+                I don't see it yet. My approach:
+                <ul>
+                    <li>I already have a working demo with correct architecture</li>
+                    <li>If your AI code has useful parts, I'll integrate them</li>
+                    <li>If not, I'll build from my proven prototype</li>
+                </ul>
+                Should I wait for your code, or proceed with my demo as the base?
+            </div>
+
+            <div class="question-item">
+                <div class="question-label">Q5: Front Visualization</div>
+                <strong>You mentioned fronts should be "more curved."</strong>
+                <br><br>
+                For MVP, is it acceptable to have:
+                <ul>
+                    <li><strong>Simple fronts:</strong> Straight or gently curved lines (faster, works for most scenarios)</li>
+                    <li><strong>Phase 2:</strong> Advanced bezier curves with custom shaping</li>
+                </ul>
+                Or do you need fully curved fronts for launch?
+            </div>
+
+            <div class="question-item">
+                <div class="question-label">Q6: Landing Page Content</div>
+                <strong>Will you provide landing page content, or should I draft it?</strong>
+                <br>Specifically:
+                <ul>
+                    <li>Product description text</li>
+                    <li>Pricing information (monthly cost, tiers)</li>
+                    <li>Logo/branding assets</li>
+                </ul>
+                I can create placeholder content, but your messaging will be more accurate.
+            </div>
+
+            <div class="question-item">
+                <div class="question-label">Q7: Domain & Hosting</div>
+                <strong>Do you have a domain ready, or need help with setup?</strong>
+                <br>I can deploy to any domain or subdomain you provide. If not ready, I'll deploy to a temporary URL for testing.
+            </div>
+        </div>
+
+        <!-- PHASE 2 -->
+        <h2>Phase 2 Features (Post-MVP)</h2>
+        <p>Once MVP is validated with real users, we can prioritize Phase 2 based on demand:</p>
+        <ul>
+            <li>Expanded static template library (20+ layouts)</li>
+            <li>Full Stripe payment integration</li>
+            <li>MP4 video export</li>
+            <li>Advanced animation curves (bezier, custom easing)</li>
+            <li>Curved front drawing tools (advanced bezier editor)</li>
+            <li>Team collaboration features</li>
+            <li>Branding customization (custom logos, fonts, color schemes)</li>
+            <li>Multiple weather API integrations (Weather.gov, OpenWeather)</li>
+            <li>Social media direct posting</li>
+        </ul>
+
+        <div class="value-prop">
+            <strong>Smart Business Strategy:</strong> Launch lean MVP, validate with early adopters, build Phase 2 features based on what users actually request — not what we assume they need.
+        </div>
+
+        <!-- NEXT STEPS -->
+        <h2>Next Steps</h2>
+
+        <div class="next-steps">
+            <ol>
+                <li><strong>You review this proposal</strong> — any questions/concerns, let's discuss</li>
+                <li><strong>Answer critical questions above</strong> (especially Q1-Q2, needed to finalize scope)</li>
+                <li><strong>Provide Xweather API credentials</strong> — I'll spend 1 day exploring API to confirm all layers accessible</li>
+                <li><strong>Contract milestone structure on Upwork</strong> — we'll set up the 5 milestones</li>
+                <li><strong>Kick off Week 1</strong> — I'll start immediately after access confirmed</li>
+            </ol>
+        </div>
+
+        <div class="value-prop" style="margin-top: 30px;">
+            <strong>Why Work With Me</strong>
+            <br><br>
+            ✓ <strong>Proven prototype already built</strong> — I understand your requirements and built a working demo before applying
+            <br><br>
+            ✓ <strong>Business-focused approach</strong> — I'm optimizing for fastest time-to-market with core value intact, not over-engineering features you don't need yet
+            <br><br>
+            ✓ <strong>Clear communication</strong> — Weekly updates, video demos, transparent about risks and timeline
+            <br><br>
+            ✓ <strong>Realistic timeline</strong> — 4-5 weeks to production (not 7 days like some proposals you mentioned)
+            <br><br>
+            ✓ <strong>Milestone-based</strong> — You see progress every week, only pay when deliverables meet expectations
+        </div>
+
+        <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #ecf0f1;">
+            <h3>Ready to launch your weather graphics tool?</h3>
+            <p style="color: #7f8c8d; margin-top: 10px;">Let's get you to market in 4-5 weeks.</p>
+            <div style="margin-top: 20px;">
+                <strong>Leonid Shvorob</strong><br>
+                Full-Stack Developer<br>
+                <a href="https://leonidsvb.github.io/upwork-demos/demo/weather-graphics-project/weather-graphics-demo.html" target="_blank">View Prototype</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
